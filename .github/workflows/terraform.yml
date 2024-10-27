@@ -1,0 +1,45 @@
+name: Terraform
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout the repository
+      - uses: actions/checkout@v2
+
+      # Set up Terraform
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: 1.0.0
+
+      # Initialize Terraform
+      - name: Terraform Init
+        run: terraform init
+
+      # Run Terraform Plan and output to a file
+      - name: Terraform Plan
+        run: terraform plan -out=tfplan
+
+      # Convert Terraform plan to JSON format for Infracost
+      - name: Generate JSON Plan
+        run: terraform show -json tfplan > plan.json
+
+      # Install Infracost
+      - name: Install Infracost
+        run: |
+          curl -s https://dashboard.infracost.io/scripts/install.sh | sh
+          infracost register --api-key=${{ secrets.INFRACOST_API_KEY }}
+
+      # Run Infracost to estimate costs based on the plan
+      - name: Run Infracost
+        run: infracost breakdown --path=plan.json --format=json --out-file=infracost-report.json
+
+      # Output the Infracost report
+      - name: Show Infracost Report
+        run: infracost output --path=infracost-report.json --format=table
