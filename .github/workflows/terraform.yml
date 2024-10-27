@@ -29,13 +29,13 @@ jobs:
         with:
           terraform_version: 1.0.0
 
-      # Initialize Terraform with explicit AWS credentials
-      - name: Terraform Init
+      # Refresh Terraform state to sync with actual AWS resources
+      - name: Terraform Refresh
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: ${{ secrets.AWS_REGION }}
-        run: terraform init
+        run: terraform refresh
 
       # Run Terraform Plan and output to a file
       - name: Terraform Plan
