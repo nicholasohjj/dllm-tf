@@ -21,7 +21,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }} # Set this secret to match your region, e.g., "us-west-2"
+          aws-region: ${{ secrets.AWS_REGION }}
 
       # Set up Terraform
       - name: Set up Terraform
@@ -29,12 +29,20 @@ jobs:
         with:
           terraform_version: 1.0.0
 
-      # Initialize Terraform
+      # Initialize Terraform with explicit AWS credentials
       - name: Terraform Init
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
         run: terraform init
 
       # Run Terraform Plan and output to a file
       - name: Terraform Plan
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
         run: terraform plan -out=tfplan
 
       # Convert Terraform plan to JSON format for Infracost
