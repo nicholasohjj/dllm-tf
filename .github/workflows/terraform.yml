@@ -44,21 +44,3 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: ${{ secrets.AWS_REGION }}
         run: terraform plan -out=tfplan
-
-      # Convert Terraform plan to JSON format for Infracost
-      - name: Generate JSON Plan
-        run: terraform show -json tfplan > plan.json
-
-      # Install Infracost
-      - name: Install Infracost
-        run: |
-          curl -s https://dashboard.infracost.io/scripts/install.sh | sh
-          infracost register --api-key=${{ secrets.INFRACOST_API_KEY }}
-
-      # Run Infracost to estimate costs based on the plan
-      - name: Run Infracost
-        run: infracost breakdown --path=plan.json --format=json --out-file=infracost-report.json
-
-      # Output the Infracost report
-      - name: Show Infracost Report
-        run: infracost output --path=infracost-report.json --format=table
