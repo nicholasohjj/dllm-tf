@@ -19,5 +19,5 @@ resource "aws_cloudwatch_event_rule" "processDataRule" {
 resource "aws_cloudwatch_event_target" "processDataTarget" {
   rule      = aws_cloudwatch_event_rule.processDataRule.name
   target_id = "processDataTarget"
-  arn       = aws_lambda_function.processDataRole.arn
+  arn       = aws_lambda_function.processDataFunction.arn
 }

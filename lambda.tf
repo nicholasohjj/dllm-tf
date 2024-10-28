@@ -1,12 +1,48 @@
 
+data "archive_file" "archiveOldDataFunction" {
+  type        = "zip"
+  source_file = "functions/archiveOldDataFunction.py"
+  output_path = "functions/archiveOldDataFunction.zip"
+}
+
+data "archive_file" "seedMachineFunction" {
+  type        = "zip"
+  source_file = "functions/seedMachineFunction.mjs"
+  output_path = "functions/seedMachineFunction.zip"
+}
+
+data "archive_file" "disconnectFunction" {
+  type        = "zip"
+  source_file = "functions/disconnectFunction.py"
+  output_path = "functions/disconnectFunction.zip"
+}
+
+data "archive_file" "connectFunction" {
+  type        = "zip"
+  source_file = "functions/connectFunction.py"
+  output_path = "functions/connectFunction.zip"
+}
+
+data "archive_file" "processDataFunction" {
+  type        = "zip"
+  source_file = "functions/processDataFunction.py"
+  output_path = "functions/processDataFunction.zip"
+}
+
+data "archive_file" "fetchMachineStatusFunction" {
+  type        = "zip"
+  source_file = "functions/fetchMachineStatusFunction.py"
+  output_path = "functions/fetchMachineStatusFunction.zip"
+}
+
 # Lambda Functions
 
 resource "aws_lambda_function" "seedMachineFunction" {
   function_name    = "seedMachineFunction"
-  handler          = "index.handler"
+  handler          = "seedMachineFunction.handler"
   runtime          = "nodejs20.x"
-  filename         = "functions/seedMachineFunction.zip"
-  source_code_hash = filebase64sha256("functions/seedMachineFunction.zip")
+  filename         = data.archive_file.seedMachineFunction.output_path
+  source_code_hash = data.archive_file.seedMachineFunction.output_base64sha256
   role             = aws_iam_role.modifyMachineStatusRole.arn
   environment {
     variables = {
@@ -17,10 +53,10 @@ resource "aws_lambda_function" "seedMachineFunction" {
 
 resource "aws_lambda_function" "disconnectFunction" {
   function_name    = "disconnectFunction"
-  handler          = "lambda_function.lambda_handler"
+  handler          = "disconnectFunction.lambda_handler"
   runtime          = "python3.12"
-  filename         = "functions/disconnectFunction.zip"
-  source_code_hash = filebase64sha256("functions/disconnectFunction.zip")
+  filename         = data.archive_file.disconnectFunction.output_path
+  source_code_hash = data.archive_file.disconnectFunction.output_base64sha256
   role             = aws_iam_role.modifyWebConnectionsRole.arn
   environment {
     variables = {
@@ -31,10 +67,10 @@ resource "aws_lambda_function" "disconnectFunction" {
 
 resource "aws_lambda_function" "connectFunction" {
   function_name    = "connectFunction"
-  handler          = "lambda_function.lambda_handler"
+  handler          = "connectFunction.lambda_handler"
   runtime          = "python3.12"
-  filename         = "functions/connectFunction.zip"
-  source_code_hash = filebase64sha256("functions/connectFunction.zip")
+  filename         = data.archive_file.connectFunction.output_path
+  source_code_hash = data.archive_file.connectFunction.output_base64sha256
   role             = aws_iam_role.modifyWebConnectionsRole.arn
   environment {
     variables = {
@@ -43,12 +79,12 @@ resource "aws_lambda_function" "connectFunction" {
   }
 }
 
-resource "aws_lambda_function" "processDataRole" {
-  function_name    = "processDataRole"
-  handler          = "lambda_function.lambda_handler"
+resource "aws_lambda_function" "processDataFunction" {
+  function_name    = "processDataFunction"
+  handler          = "processDataFunction.lambda_handler"
   runtime          = "python3.12"
-  filename         = "functions/processVibrationDataFunction.zip"
-  source_code_hash = filebase64sha256("functions/processVibrationDataFunction.zip")
+  filename         = data.archive_file.processDataFunction.output_path
+  source_code_hash = data.archive_file.processDataFunction.output_base64sha256
   role             = aws_iam_role.processDataRole.arn
   environment {
     variables = {
@@ -61,10 +97,10 @@ resource "aws_lambda_function" "processDataRole" {
 
 resource "aws_lambda_function" "fetchMachineStatusFunction" {
   function_name    = "fetchMachineStatusFunction"
-  handler          = "lambda_function.lambda_handler"
+  handler          = "fetchMachineStatusFunction.lambda_handler"
   runtime          = "python3.12"
-  filename         = "functions/fetchMachineStatusFunction.zip"
-  source_code_hash = filebase64sha256("functions/fetchMachineStatusFunction.zip")
+  filename         = data.archive_file.fetchMachineStatusFunction.output_path
+  source_code_hash = data.archive_file.fetchMachineStatusFunction.output_base64sha256
   role             = aws_iam_role.modifyMachineStatusRole.arn
   environment {
     variables = {
@@ -87,12 +123,13 @@ resource "aws_lambda_function_url" "fetchMachineStatusFunction" {
   }
 }
 
+
 resource "aws_lambda_function" "archiveOldDataFunction" {
   function_name    = "archiveOldDataFunction"
-  handler          = "lambda_function.lambda_handler"
+  handler          = "archiveOldDataFunction.lambda_handler"
   runtime          = "python3.12"
-  filename         = "functions/archiveOldDataFunction.zip"
-  source_code_hash = filebase64sha256("functions/archiveOldDataFunction.zip")
+  filename         = data.archive_file.archiveOldDataFunction.output_path
+  source_code_hash = data.archive_file.archiveOldDataFunction.output_base64sha256
   role             = aws_iam_role.archiveOldDataRole.arn
   environment {
     variables = {

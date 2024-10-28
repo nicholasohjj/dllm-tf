@@ -19,7 +19,7 @@ resource "aws_dynamodb_table" "VibrationData" {
   name         = var.VibrationData
   billing_mode = "PAY_PER_REQUEST"
   hash_key     = "timestamp_value"
-  range_key    = "machineID"
+  range_key    = "machine_id"
 
   attribute {
     name = "timestamp_value"
@@ -27,7 +27,7 @@ resource "aws_dynamodb_table" "VibrationData" {
   }
 
   attribute {
-    name = "machineID"
+    name = "machine_id"
     type = "S"
   }
 

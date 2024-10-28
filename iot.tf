@@ -26,7 +26,7 @@ resource "aws_iot_topic_rule" "StoreVibrationDataRule" {
   name        = "StoreVibrationData"
   description = "Store Vibration Data in DynamoDB"
   enabled     = true
-  sql         = "SELECT timestamp AS timestamp_value, machineID, vibration FROM 'laundry/vibration'"
+  sql         = "SELECT * FROM 'laundry/vibration'"
   sql_version = "2016-03-23"
 
   dynamodbv2 {
