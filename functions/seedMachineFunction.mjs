@@ -54,9 +54,10 @@ const batchWriteMachines = async (machines) => {
   }
 
   for (const batch of batches) {
+    const tableName = process.env.MACHINE_STATUS_TABLE;  // Retrieve table name from environment variable
     const batchWriteCommand = new BatchWriteCommand({
       RequestItems: {
-        MachineStatusTable: batch
+        [tableName]: batch  // Use the table name from the environment variable
       }
     });
     await ddbDocClient.send(batchWriteCommand);

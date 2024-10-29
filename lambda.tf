@@ -131,7 +131,7 @@ resource "aws_lambda_function_url" "fetchMachineStatusFunction" {
   }
 }
 
-
+# Archive Old Data Function for Data Archiving
 resource "aws_lambda_function" "archiveOldDataFunction" {
   function_name    = "archiveOldDataFunction"
   handler          = "archiveOldDataFunction.lambda_handler"
@@ -141,7 +141,9 @@ resource "aws_lambda_function" "archiveOldDataFunction" {
   role             = aws_iam_role.archiveOldDataRole.arn
   environment {
     variables = {
-      VIBRATION_DATA_TABLE = aws_dynamodb_table.VibrationData.name
+      VIBRATION_DATA_TABLE  = aws_dynamodb_table.VibrationData.name
+      ARCHIVE_BUCKET_NAME   = "archived-data-dllm"  # Define your S3 bucket name
+      ARCHIVE_S3_KEY        = "archive/oldData.json"  # Define your S3 key path
     }
   }
 }

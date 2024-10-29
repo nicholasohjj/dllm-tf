@@ -2,11 +2,12 @@ import boto3
 import json
 from decimal import Decimal
 from datetime import datetime, timedelta, timezone
+import os
 
 # Initialize DynamoDB resources
 dynamodb = boto3.resource('dynamodb')
-vibration_table = dynamodb.Table('VibrationData')
-status_table = dynamodb.Table('MachineStatusTable')
+vibration_table = dynamodb.Table(os.environ['VIBRATION_DATA_TABLE'])
+machine_status_table = dynamodb.Table(os.environ['MACHINE_STATUS_TABLE'])
 
 def decimal_default(obj):
     if isinstance(obj, Decimal):
@@ -59,7 +60,7 @@ def lambda_handler(event, context):
                 if item_time >= time_threshold:
                     status = process_vibration_data(vibration_data)
                     # Update only the status and lastUpdated fields
-                    status_table.update_item(
+                    machine_status_table.update_item(
                         Key={'machineID': item['machine_id']},  # Use 'timestamp_value' instead of 'machineID'
                         UpdateExpression="SET #st = :status, lastUpdated = :lastUpdated",
                         ExpressionAttributeNames={

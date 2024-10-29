@@ -1,5 +1,6 @@
 import json
 import boto3
+import os
 from datetime import datetime, timezone, timedelta
 from decimal import Decimal
 
@@ -7,10 +8,10 @@ from decimal import Decimal
 dynamodb = boto3.resource('dynamodb')
 s3 = boto3.client('s3')
 
-# Define DynamoDB table and S3 bucket
-TABLE_NAME = 'VibrationData'
-BUCKET_NAME = 'archived-data-dllm'
-S3_KEY = 'archive/oldData.json'
+# Retrieve environment variables
+TABLE_NAME = os.environ.get('VIBRATION_DATA_TABLE')
+BUCKET_NAME = os.environ.get('ARCHIVE_BUCKET_NAME')
+S3_KEY = os.environ.get('ARCHIVE_S3_KEY', 'archive/oldData.json')  # Default key if not provided
 
 def lambda_handler(event, context):
     # Initialize DynamoDB table

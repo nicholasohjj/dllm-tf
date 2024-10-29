@@ -1,10 +1,11 @@
 import boto3
 import json
+import os
 from decimal import Decimal
 
 # Initialize DynamoDB resource
 dynamodb = boto3.resource('dynamodb')
-machine_status_table = dynamodb.Table('MachineStatusTable')
+machine_status_table = dynamodb.Table(os.environ['MACHINE_STATUS_TABLE'])
 
 # Custom encoder to convert Decimal to float
 class DecimalEncoder(json.JSONEncoder):
