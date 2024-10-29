@@ -95,6 +95,28 @@ resource "aws_iam_role" "archiveOldDataRole" {
   path = "/service-role/"
 }
 
+resource "aws_iam_policy" "archive_data_policy" {
+  name        = "archiveDataPolicy"
+  description = "Policy to allow Lambda function to archive data to S3"
+  policy = jsonencode({
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Effect": "Allow",
+        "Action": [
+          "s3:PutObject"
+        ],
+        "Resource": "arn:aws:s3:::dllmarchiveddata/archive/*"  # Adjust bucket and path if needed
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "archive_data_role_attach" {
+  role       = aws_iam_role.archiveOldDataRole.name
+  policy_arn = aws_iam_policy.archive_data_policy.arn
+}
+
 resource "aws_iam_role_policy_attachment" "dynamodb_full_access" {
   role       = aws_iam_role.modifyMachineStatusRole.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess"
