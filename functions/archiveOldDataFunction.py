@@ -10,6 +10,7 @@ s3 = boto3.client('s3')
 # Define DynamoDB table and S3 bucket
 TABLE_NAME = 'VibrationData'
 BUCKET_NAME = 'archived-data-dllm'
+S3_KEY = 'archive/oldData.json'
 
 def lambda_handler(event, context):
     # Initialize DynamoDB table
@@ -36,26 +37,33 @@ def lambda_handler(event, context):
             'body': json.dumps('No data found for archiving')
         }
     
+    # Retrieve existing data from S3 (if any)
+    try:
+        s3_response = s3.get_object(Bucket=BUCKET_NAME, Key=S3_KEY)
+        existing_data = json.loads(s3_response['Body'].read().decode('utf-8'))
+    except s3.exceptions.NoSuchKey:
+        # Initialize empty list if file does not exist
+        existing_data = []
+
+    # Add new items to the existing data list
+    existing_data.extend(items_to_archive)
+    
+    # Save updated data back to S3
+    s3.put_object(
+        Bucket=BUCKET_NAME,
+        Key=S3_KEY,
+        Body=json.dumps(existing_data, cls=DecimalEncoder)
+    )
+    
+    # Delete archived items from DynamoDB
     total_archived = 0
     for item in items_to_archive:
-        timestamp_str = item['timestamp_value'].replace(":", "-")  # Adjust for filename compatibility
-        s3_key = f'archive/vibration_data_{item["machine_id"]}_{timestamp_str}.json'
-        
-        # Save item to S3
-        s3.put_object(
-            Bucket=BUCKET_NAME,
-            Key=s3_key,
-            Body=json.dumps(item, cls=DecimalEncoder)
-        )
-        
-        # Delete item from DynamoDB
         table.delete_item(
             Key={
                 'timestamp_value': item['timestamp_value'],
                 'machine_id': item['machine_id']
             }
         )
-        
         total_archived += 1
     
     return {

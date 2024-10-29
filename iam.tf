@@ -107,11 +107,17 @@ resource "aws_iam_policy" "archive_data_policy" {
           "s3:PutObject"
         ],
         "Resource": "arn:aws:s3:::archived-data-dllm/archive/*"  # Ensure bucket name and path are correct here
+      },
+      {
+        "Effect": "Allow",
+        "Action": [
+          "s3:ListBucket"
+        ],
+        "Resource": "arn:aws:s3:::archived-data-dllm"  # Allow list operation at bucket level
       }
     ]
   })
 }
-
 
 resource "aws_iam_role_policy_attachment" "archive_data_role_attach" {
   role       = aws_iam_role.archiveOldDataRole.name

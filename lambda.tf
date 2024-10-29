@@ -1,4 +1,5 @@
-
+# Archive Files for Lambda Functions
+# Each function is zipped and stored as an archived file, ready for deployment.
 data "archive_file" "archiveOldDataFunction" {
   type        = "zip"
   source_file = "functions/archiveOldDataFunction.py"
@@ -36,7 +37,9 @@ data "archive_file" "fetchMachineStatusFunction" {
 }
 
 # Lambda Functions
+# Each Lambda function resource references an archive file for deployment
 
+# Seed Machine Function
 resource "aws_lambda_function" "seedMachineFunction" {
   function_name    = "seedMachineFunction"
   handler          = "seedMachineFunction.handler"
@@ -51,6 +54,7 @@ resource "aws_lambda_function" "seedMachineFunction" {
   }
 }
 
+# Disconnect Function for WebSocket Disconnections
 resource "aws_lambda_function" "disconnectFunction" {
   function_name    = "disconnectFunction"
   handler          = "disconnectFunction.lambda_handler"
@@ -65,6 +69,7 @@ resource "aws_lambda_function" "disconnectFunction" {
   }
 }
 
+# Connect Function for WebSocket Connections
 resource "aws_lambda_function" "connectFunction" {
   function_name    = "connectFunction"
   handler          = "connectFunction.lambda_handler"
@@ -79,6 +84,7 @@ resource "aws_lambda_function" "connectFunction" {
   }
 }
 
+# Process Data Function
 resource "aws_lambda_function" "processDataFunction" {
   function_name    = "processDataFunction"
   handler          = "processDataFunction.lambda_handler"
@@ -95,6 +101,7 @@ resource "aws_lambda_function" "processDataFunction" {
   }
 }
 
+# Fetch Machine Status Function with a public URL
 resource "aws_lambda_function" "fetchMachineStatusFunction" {
   function_name    = "fetchMachineStatusFunction"
   handler          = "fetchMachineStatusFunction.lambda_handler"
@@ -109,6 +116,7 @@ resource "aws_lambda_function" "fetchMachineStatusFunction" {
   }
 }
 
+# Public URL for Fetch Machine Status Function
 resource "aws_lambda_function_url" "fetchMachineStatusFunction" {
   function_name      = aws_lambda_function.fetchMachineStatusFunction.function_name
   authorization_type = "NONE"
