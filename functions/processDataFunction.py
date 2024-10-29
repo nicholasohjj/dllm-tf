@@ -60,7 +60,7 @@ def lambda_handler(event, context):
                     status = process_vibration_data(vibration_data)
                     # Update only the status and lastUpdated fields
                     status_table.update_item(
-                        Key={'timestamp_value': item['timestamp_value']},  # Use 'timestamp_value' instead of 'machineID'
+                        Key={'machineID': item['machine_id']},  # Use 'timestamp_value' instead of 'machineID'
                         UpdateExpression="SET #st = :status, lastUpdated = :lastUpdated",
                         ExpressionAttributeNames={
                             '#st': 'status'

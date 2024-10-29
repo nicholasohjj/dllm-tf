@@ -32,6 +32,35 @@ resource "aws_iam_role" "processDataRole" {
   path = "/service-role/"
 }
 
+resource "aws_iam_policy" "process_data_policy" {
+  name        = "processDataPolicy"
+  description = "Policy to allow DynamoDB scan access for VibrationData table and update access for MachineStatusTable"
+  policy = jsonencode({
+    "Version" : "2012-10-17",
+    "Statement" : [
+      {
+        "Effect" : "Allow",
+        "Action" : [
+          "dynamodb:Scan"
+        ],
+        "Resource" : "arn:aws:dynamodb:ap-southeast-1:149536472280:table/VibrationData"
+      },
+      {
+        "Effect" : "Allow",
+        "Action" : [
+          "dynamodb:UpdateItem"
+        ],
+        "Resource" : "arn:aws:dynamodb:ap-southeast-1:149536472280:table/MachineStatusTable"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "process_data_role_attach" {
+  role       = aws_iam_role.processDataRole.name
+  policy_arn = aws_iam_policy.process_data_policy.arn
+}
+
 resource "aws_iam_role" "modifyWebConnectionsRole" {
   name = "modifyWebConnectionsRole"
   assume_role_policy = jsonencode({
