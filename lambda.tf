@@ -6,6 +6,12 @@ data "archive_file" "archiveOldDataFunction" {
   output_path = "functions/archiveOldDataFunction.zip"
 }
 
+data "archive_file" "postCameraImageJSONFunction" {
+  type        = "zip"
+  source_file = "functions/postCameraImageJSONFunction.py"
+  output_path = "functions/postCameraImageJSONFunction.zip"
+}
+
 data "archive_file" "seedMachineFunction" {
   type        = "zip"
   source_file = "functions/seedMachineFunction.mjs"
@@ -145,5 +151,33 @@ resource "aws_lambda_function" "archiveOldDataFunction" {
       ARCHIVE_BUCKET_NAME   = "archived-data-dllm"  # Define your S3 bucket name
       ARCHIVE_S3_KEY        = "archive/oldData.json"  # Define your S3 key path
     }
+  }
+}
+
+resource "aws_lambda_function" "postCameraImageJSONFunction" {
+  function_name    = "postCameraImageJSONFunction"
+  handler          = "postCameraImageJSONFunction.lambda_handler"
+  runtime          = "python3.12"
+  filename         = data.archive_file.postCameraImageJSONFunction.output_path
+  source_code_hash = data.archive_file.postCameraImageJSONFunction.output_base64sha256
+  role             = aws_iam_role.postCameraImageJSONRole.arn
+  environment {
+    variables = {
+      CAMERA_IMAGE_JSON_TABLE = aws_dynamodb_table.CameraImageJSON.name
+    }
+  }
+}
+
+resource "aws_lambda_function_url" "postCameraImageJSONFunction" {
+  function_name      = aws_lambda_function.postCameraImageJSONFunction.function_name
+  authorization_type = "NONE"
+
+    cors {
+    allow_credentials = true
+    allow_origins     = ["http://localhost:5173", "https://dllmnus.vercel.app"]
+    allow_methods     = ["*"]
+    allow_headers     = ["date", "keep-alive", "content-type"]
+    expose_headers    = ["keep-alive", "date"]
+    max_age           = 86400
   }
 }

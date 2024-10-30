@@ -133,3 +133,43 @@ resource "aws_iam_role_policy_attachment" "lambda_dynamodb_execution_role" {
   role       = aws_iam_role.modifyMachineStatusRole.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaDynamoDBExecutionRole"
 }
+
+resource "aws_iam_role" "postCameraImageJSONRole" {
+  name = "postCameraImageJSONRole"
+  assume_role_policy = jsonencode({
+    "Version" : "2012-10-17",
+    "Statement" : [
+      {
+        "Effect" : "Allow",
+        "Principal" : {
+          "Service" : "lambda.amazonaws.com"
+        },
+        "Action" : "sts:AssumeRole"
+
+      }
+    ]
+  })
+  
+}
+
+resource "aws_iam_policy" "post_camera_image_policy" {
+  name        = "postCameraImagePolicy"
+  description = "Policy to allow DynamoDB PutItem access for CameraImageJSON table"
+  policy = jsonencode({
+    "Version" : "2012-10-17",
+    "Statement" : [
+      {
+        "Effect" : "Allow",
+        "Action" : [
+          "dynamodb:PutItem"
+        ],
+        "Resource" : "arn:aws:dynamodb:ap-southeast-1:149536472280:table/CameraImageJSON"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "post_camera_image_policy_attach" {
+  role       = aws_iam_role.postCameraImageJSONRole.name
+  policy_arn = aws_iam_policy.post_camera_image_policy.arn
+}

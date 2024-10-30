@@ -19,3 +19,9 @@ variable "VibrationData" {
 variable "thing_names" {
   default = ["esp32-1", "esp32-2", "esp32-3", "esp32-4"]
 }
+
+variable "CameraImageJSON" {
+  description = "The name of the CameraImageJSON table"
+  type        = string
+  default     = "CameraImageJSON"
+}

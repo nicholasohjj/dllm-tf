@@ -61,3 +61,22 @@ resource "aws_dynamodb_table" "WebSocketConnections" {
     Owner       = "Nicholas"
   }
 }
+
+resource "aws_dynamodb_table" "CameraImageJSON" {
+  name         = var.CameraImageJSON
+  billing_mode = "PAY_PER_REQUEST"
+  hash_key     = "timestamp_value"
+
+  attribute {
+    name = "timestamp_value"
+    type = "S"
+  }
+
+  tags = {
+    Name        = "CameraImageJSON"
+    Environment = "production"
+    Project     = "DLLM"
+    Owner       = "Nicholas"
+  }
+  
+}
