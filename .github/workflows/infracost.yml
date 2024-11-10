@@ -1,0 +1,28 @@
+name: Terraform Cost Estimation
+
+on:
+  workflow_dispatch:  # Allows manual triggering from the Actions tab in GitHub
+
+
+jobs:
+  cost-estimation:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Setup Infracost
+        uses: infracost/infracost-gh-action@v2
+        with:
+          api_key: ${{ secrets.INFRACOST_API_KEY }}
+
+      - name: Run Cost Estimation
+        run: infracost breakdown --path=terraform --format=json --out-file=/tmp/infracost.json
+
+      - name: Post Cost Comment on PR
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: infracost/infracost-gh-action@v1
+        with:
+          path: /tmp/infracost.json
+          post_condition: always # Always post the cost comment to PR

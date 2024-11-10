@@ -1,0 +1,36 @@
+name: Terraform Lint and Security Scan
+
+on:
+  workflow_dispatch:  # Allows manual triggering from the Actions tab in GitHub
+
+
+
+jobs:
+  lint-and-scan:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      # Install tflint
+      - name: Install tflint
+        run: |
+          curl -L "https://github.com/terraform-linters/tflint/releases/latest/download/tflint_linux_amd64.zip" -o tflint.zip
+          unzip tflint.zip -d /usr/local/bin/
+          chmod +x /usr/local/bin/tflint
+          rm tflint.zip
+
+      # Install tfsec
+      - name: Install tfsec
+        run: |
+          curl -L "https://github.com/aquasecurity/tfsec/releases/latest/download/tfsec-linux-amd64" -o /usr/local/bin/tfsec
+          chmod +x /usr/local/bin/tfsec
+
+      # Run tflint
+      - name: Run tflint
+        run: tflint
+
+      # Run tfsec
+      - name: Run tfsec
+        run: tfsec .

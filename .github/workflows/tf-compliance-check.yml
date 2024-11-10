@@ -1,0 +1,27 @@
+name: Terraform Compliance Checks
+
+on:
+  workflow_dispatch:  # Allows manual triggering from the Actions tab in GitHub
+
+
+jobs:
+  compliance:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      # Run Terraform init
+      - name: Initialize Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: 1.0.0
+      - run: terraform init
+
+      # Run Compliance Checks (using tools like Open Policy Agent)
+      - name: Validate Compliance with OPA
+        uses: open-policy-agent/conftest-action@v1
+        with:
+          policy-path: policies/ # path where OPA policies are stored
+          input-path: terraform/ # input Terraform configuration folder
