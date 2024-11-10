@@ -7,6 +7,6 @@ def lambda_handler(event, context):
     connection_id = event['requestContext']['connectionId']
     
     # Remove connection ID from DynamoDB
-    table.delete_item(Key={'ConnectionId': connection_id})
+    table.delete_item(Key={'connectionId': connection_id})
     
     return {'statusCode': 200}

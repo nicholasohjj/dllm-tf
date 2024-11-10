@@ -30,16 +30,24 @@ data "archive_file" "connectFunction" {
   output_path = "functions/connectFunction.zip"
 }
 
-data "archive_file" "processDataFunction" {
-  type        = "zip"
-  source_file = "functions/processDataFunction.py"
-  output_path = "functions/processDataFunction.zip"
-}
-
 data "archive_file" "fetchMachineStatusFunction" {
   type        = "zip"
   source_file = "functions/fetchMachineStatusFunction.py"
   output_path = "functions/fetchMachineStatusFunction.zip"
+}
+
+data "archive_file" "storeDataFunction" {
+  type        = "zip"
+  source_file = "functions/storeDataFunction.mjs"
+  output_path = "functions/storeDataFunction.zip"
+  
+}
+
+data "archive_file" "shuffle_machine_status" {
+  type        = "zip"
+  source_file = "functions/shuffle_machine_status.py"
+  output_path = "functions/shuffle_machine_status.zip"
+  
 }
 
 # Lambda Functions
@@ -53,6 +61,11 @@ resource "aws_lambda_function" "seedMachineFunction" {
   filename         = data.archive_file.seedMachineFunction.output_path
   source_code_hash = data.archive_file.seedMachineFunction.output_base64sha256
   role             = aws_iam_role.modifyMachineStatusRole.arn
+
+    tracing_config {
+    mode = "Active"
+  }
+
   environment {
     variables = {
       MACHINE_STATUS_TABLE = aws_dynamodb_table.MachineStatusTable.name
@@ -68,6 +81,10 @@ resource "aws_lambda_function" "disconnectFunction" {
   filename         = data.archive_file.disconnectFunction.output_path
   source_code_hash = data.archive_file.disconnectFunction.output_base64sha256
   role             = aws_iam_role.modifyWebConnectionsRole.arn
+
+    tracing_config {
+    mode = "Active"
+  }
   environment {
     variables = {
       WEB_SOCKET_CONNECTIONS_TABLE = aws_dynamodb_table.WebSocketConnections.name
@@ -83,27 +100,15 @@ resource "aws_lambda_function" "connectFunction" {
   filename         = data.archive_file.connectFunction.output_path
   source_code_hash = data.archive_file.connectFunction.output_base64sha256
   role             = aws_iam_role.modifyWebConnectionsRole.arn
+
+    tracing_config {
+    mode = "Active"
+  }
+
   environment {
     variables = {
       WEB_SOCKET_CONNECTIONS_TABLE = aws_dynamodb_table.WebSocketConnections.name
     }
-  }
-}
-
-# Process Data Function
-resource "aws_lambda_function" "processDataFunction" {
-  function_name    = "processDataFunction"
-  handler          = "processDataFunction.lambda_handler"
-  runtime          = "python3.12"
-  filename         = data.archive_file.processDataFunction.output_path
-  source_code_hash = data.archive_file.processDataFunction.output_base64sha256
-  role             = aws_iam_role.processDataRole.arn
-  environment {
-    variables = {
-      VIBRATION_DATA_TABLE = aws_dynamodb_table.VibrationData.name
-      MACHINE_STATUS_TABLE = aws_dynamodb_table.MachineStatusTable.name
-    }
-
   }
 }
 
@@ -115,6 +120,11 @@ resource "aws_lambda_function" "fetchMachineStatusFunction" {
   filename         = data.archive_file.fetchMachineStatusFunction.output_path
   source_code_hash = data.archive_file.fetchMachineStatusFunction.output_base64sha256
   role             = aws_iam_role.modifyMachineStatusRole.arn
+
+    tracing_config {
+    mode = "Active"
+  }
+
   environment {
     variables = {
       MACHINE_STATUS_TABLE = aws_dynamodb_table.MachineStatusTable.name
@@ -145,6 +155,11 @@ resource "aws_lambda_function" "archiveOldDataFunction" {
   filename         = data.archive_file.archiveOldDataFunction.output_path
   source_code_hash = data.archive_file.archiveOldDataFunction.output_base64sha256
   role             = aws_iam_role.archiveOldDataRole.arn
+  
+    tracing_config {
+    mode = "Active"
+  }
+
   environment {
     variables = {
       VIBRATION_DATA_TABLE  = aws_dynamodb_table.VibrationData.name
@@ -161,9 +176,29 @@ resource "aws_lambda_function" "postCameraImageJSONFunction" {
   filename         = data.archive_file.postCameraImageJSONFunction.output_path
   source_code_hash = data.archive_file.postCameraImageJSONFunction.output_base64sha256
   role             = aws_iam_role.postCameraImageJSONRole.arn
+
+  tracing_config {
+    mode = "Active"
+  }
   environment {
     variables = {
       CAMERA_IMAGE_JSON_TABLE = aws_dynamodb_table.CameraImageJSON.name
+    }
+  }
+}
+
+resource "aws_lambda_function" "storeDataFunction" {
+  function_name    = "storeDataFunction"
+  handler          = "storeDataFunction.handler"
+  runtime          = "nodejs20.x"
+  filename         = data.archive_file.storeDataFunction.output_path
+  source_code_hash = data.archive_file.storeDataFunction.output_base64sha256
+  role             = aws_iam_role.storeDataRole.arn
+
+  environment {
+    variables = {
+      DYNAMODB_TABLE = "VibrationData",
+      MACHINE_STATUS_TABLE = "MachineStatusTable"
     }
   }
 }
@@ -181,3 +216,20 @@ resource "aws_lambda_function_url" "postCameraImageJSONFunction" {
     max_age           = 86400
   }
 }
+
+resource "aws_lambda_function" "shuffle_machine_status" {
+  function_name    = "shuffle_machine_status"
+  handler          = "shuffle_machine_status.lambda_handler"
+  runtime          = "python3.12"
+  filename         = data.archive_file.shuffle_machine_status.output_path
+  source_code_hash = data.archive_file.shuffle_machine_status.output_base64sha256
+  role             = aws_iam_role.shuffleMachineStatusRole.arn
+
+  environment {
+    variables = {
+      MACHINE_STATUS_TABLE = aws_dynamodb_table.MachineStatusTable.name
+    }
+  }
+  
+}
+

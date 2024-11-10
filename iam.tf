@@ -173,3 +173,126 @@ resource "aws_iam_role_policy_attachment" "post_camera_image_policy_attach" {
   role       = aws_iam_role.postCameraImageJSONRole.name
   policy_arn = aws_iam_policy.post_camera_image_policy.arn
 }
+
+resource "aws_iam_role" "storeDataRole" {
+  name = "storeDataRole"
+  assume_role_policy = jsonencode({
+    "Version" : "2012-10-17",
+    "Statement" : [
+      {
+        "Effect" : "Allow",
+        "Principal" : {
+          "Service" : "lambda.amazonaws.com"
+        },
+        "Action" : "sts:AssumeRole"
+      }
+    ]
+  })
+  path = "/service-role/"
+  
+}
+
+resource "aws_iam_policy" "store_data_policy" {
+  name        = "storeDataPolicy"
+  description = "Policy to allow DynamoDB PutItem access for VibrationData table"
+  policy = jsonencode({
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Effect": "Allow",
+        "Action": [
+          "dynamodb:PutItem"
+        ],
+        "Resource": "arn:aws:dynamodb:ap-southeast-1:149536472280:table/VibrationData"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "store_data_role_attach" {
+  role       = aws_iam_role.storeDataRole.name
+  policy_arn = aws_iam_policy.store_data_policy.arn
+}
+
+resource "aws_iam_policy" "update_machine_status_policy" {
+  name        = "updateMachineStatusPolicy"
+  description = "Policy to allow DynamoDB UpdateItem access for MachineStatusTable"
+  policy = jsonencode({
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Effect": "Allow",
+        "Action": [
+          "dynamodb:UpdateItem"
+        ],
+        "Resource": "arn:aws:dynamodb:ap-southeast-1:149536472280:table/MachineStatusTable"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "update_machine_status_role_attach" {
+  role       = aws_iam_role.storeDataRole.name
+  policy_arn = aws_iam_policy.update_machine_status_policy.arn
+}
+
+resource "aws_iam_role" "shuffleMachineStatusRole" {
+  name = "shuffleMachineStatusRole"
+  assume_role_policy = jsonencode({
+    "Version" : "2012-10-17",
+    "Statement" : [
+      {
+        "Effect" : "Allow",
+        "Principal" : {
+          "Service" : "lambda.amazonaws.com"
+        },
+        "Action" : "sts:AssumeRole"
+      }
+    ]
+  })
+  path = "/service-role/"
+  
+}
+
+# Define policy to allow Scan and UpdateItem actions on MachineStatusTable
+resource "aws_iam_policy" "shuffle_machine_status_policy" {
+  name        = "ShuffleMachineStatusPolicy"
+  description = "Policy to allow DynamoDB Scan and UpdateItem access for MachineStatusTable"
+  policy = jsonencode({
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Effect": "Allow",
+        "Action": [
+          "dynamodb:Scan",
+          "dynamodb:UpdateItem"
+        ],
+        "Resource": "arn:aws:dynamodb:ap-southeast-1:149536472280:table/MachineStatusTable"
+      }
+    ]
+  })
+}
+
+# Attach the policy to shuffleMachineStatusRole
+resource "aws_iam_role_policy_attachment" "shuffle_machine_status_role_attach" {
+  role       = aws_iam_role.shuffleMachineStatusRole.name
+  policy_arn = aws_iam_policy.shuffle_machine_status_policy.arn
+}
+
+resource "aws_iam_role" "processCameraJSONRole" {
+  name = "processCameraJSONRole"
+  assume_role_policy = jsonencode({
+    "Version" : "2012-10-17",
+    "Statement" : [
+      {
+        "Effect" : "Allow",
+        "Principal" : {
+          "Service" : "lambda.amazonaws.com"
+        },
+        "Action" : "sts:AssumeRole"
+      }
+    ]
+  })
+  path = "/service-role/"
+  
+}

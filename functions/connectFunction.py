@@ -14,7 +14,7 @@ def lambda_handler(event, context):
     # Add connection ID to DynamoDB with TTL
     table.put_item(
         Item={
-            'ConnectionId': connection_id,
+            'connectionId': connection_id,
             'ExpirationTime': expiration_time  # This field is used for TTL
         }
     )

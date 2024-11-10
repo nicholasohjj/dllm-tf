@@ -42,7 +42,7 @@ resource "aws_dynamodb_table" "VibrationData" {
 resource "aws_dynamodb_table" "WebSocketConnections" {
   name         = "WebSocketConnections"
   billing_mode = "PAY_PER_REQUEST"
-  hash_key     = "connectionID"
+  hash_key     = "connectionId"
 
   ttl {
     attribute_name = "ExpirationTime"
@@ -50,7 +50,7 @@ resource "aws_dynamodb_table" "WebSocketConnections" {
   }
 
   attribute {
-    name = "connectionID"
+    name = "connectionId"
     type = "S"
   }
 

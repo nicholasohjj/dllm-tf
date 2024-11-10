@@ -15,9 +15,3 @@ resource "aws_cloudwatch_event_rule" "processDataRule" {
   description         = "Process Vibration Data"
   schedule_expression = "rate(5 minutes)"
 }
-
-resource "aws_cloudwatch_event_target" "processDataTarget" {
-  rule      = aws_cloudwatch_event_rule.processDataRule.name
-  target_id = "processDataTarget"
-  arn       = aws_lambda_function.processDataFunction.arn
-}
