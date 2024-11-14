@@ -296,3 +296,27 @@ resource "aws_iam_role" "processCameraJSONRole" {
   path = "/service-role/"
   
 }
+
+# Define policy to allow UpdateItem action on MachineStatusTable for postCameraImageJSONRole
+resource "aws_iam_policy" "post_camera_image_update_machine_status_policy" {
+  name        = "PostCameraImageUpdateMachineStatusPolicy"
+  description = "Policy to allow DynamoDB UpdateItem access for MachineStatusTable for postCameraImageJSONRole"
+  policy = jsonencode({
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Effect": "Allow",
+        "Action": [
+          "dynamodb:UpdateItem"
+        ],
+        "Resource": "arn:aws:dynamodb:ap-southeast-1:149536472280:table/MachineStatusTable"
+      }
+    ]
+  })
+}
+
+# Attach the policy to postCameraImageJSONRole
+resource "aws_iam_role_policy_attachment" "post_camera_image_update_machine_status_policy_attach" {
+  role       = aws_iam_role.postCameraImageJSONRole.name
+  policy_arn = aws_iam_policy.post_camera_image_update_machine_status_policy.arn
+}
