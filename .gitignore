@@ -9,3 +9,6 @@
 
 # Ignore temporary files and logs
 crash.log
+
+# Cache file
+__MACOSX/
